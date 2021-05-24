@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Created on Fri May  7 08:38:43 2021
 
@@ -15,23 +14,22 @@ import matplotlib as mpl
 mpl.rc('figure', max_open_warning = 0)
 
 #---------------------PARAMETROS----------------------------------
-# temperatura
+#temperatura
 TEMP = 2.8
-# numero de spins
+#numero de spins
 N = 64
 N2 = N**2
-# numero de trocas
+#numero de trocas
 TMAX = 200
 #vetor da rede
 s = rd.choices([-1,1], k=N2)
-# gerador de numero aleatorio
+#gerador de numero aleatorio
 rng = default_rng()
 #prob do flip
 prob = 1 - np.exp(-2/TEMP)
 #matriz para o plot
 splot = np.zeros(shape=(N,N), dtype=int)
 rd.seed(42)
-
 
 #---------------------PARAMETROS----------------------------------
 
@@ -84,7 +82,19 @@ def plot_din(s, t):
         for i in range(N):
           sitio = i+j*N
           splot[i][j] = s[sitio]
-          
+
+    
+    #--------- CHART CONFIGS --------------------------------
+    fig, ax = plt.subplots(figsize=(16,9), dpi=120)
+    ax.tick_params(axis="x", labelsize=20)
+    ax.tick_params(axis="y", labelsize=20)
+    ax.spines['left'].set_linewidth(2)
+    ax.spines['bottom'].set_linewidth(2)
+    ax.spines['right'].set_linewidth(2)
+    ax.spines['top'].set_linewidth(2)
+    plt.style.use('seaborn-talk')
+    #--------- CHART CONFIGS --------------------------------
+
     plt.title("TEMPO {}".format(t))
     return plt.matshow(splot, cmap='cool', fignum=None)
 
@@ -101,8 +111,10 @@ for t in range(TMAX):
 
     
     cluster_din(sitio)
-    plot_din(s, t)
+    
     """PLOT"""
+    plot_din(s, t)
+    plt.pause(0.001)
     
     
 
