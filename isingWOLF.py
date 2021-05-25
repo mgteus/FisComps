@@ -15,20 +15,23 @@ mpl.rc('figure', max_open_warning = 0)
 
 #---------------------PARAMETROS----------------------------------
 #temperatura
-TEMP = 2.8
+TEMP = 2.3
 #numero de spins
 N = 64
 N2 = N**2
 #numero de trocas
-TMAX = 200
+TMAX = 100
 #vetor da rede
+
 s = rd.choices([-1,1], k=N2)
+
 #gerador de numero aleatorio
 rng = default_rng()
 #prob do flip
 prob = 1 - np.exp(-2/TEMP)
 #matriz para o plot
 splot = np.zeros(shape=(N,N), dtype=int)
+
 rd.seed(42)
 
 #---------------------PARAMETROS----------------------------------
@@ -47,7 +50,6 @@ for sitio in range(N2):
 #------------VIZINHOS---------------------
 
 #---------------- "BUFFER" --------------
-
 def cluster_din(sitio):
     stack = []
     oldspin = s[sitio]
@@ -70,57 +72,104 @@ def cluster_din(sitio):
                  stack.append(nn)
                  sp = sp+1
                  s[nn] = newspin
-                 
-        
-    return 
 #---------------- "BUFFER" -----------------
 
-#----------------- PLOT FUNCTION --------------------
-def plot_din(s, t):
-    # transformando s em 2D para o plot
+#fig = plt.figure()#figsize=(16,9), dpi=120)
+
+
+
+
+def make_splot(s):
     for j in range(N):
         for i in range(N):
-          sitio = i+j*N
-          splot[i][j] = s[sitio]
+            sitio = i+j*N
+            splot[i][j] = s[sitio]
 
+
+
+#def dinamica():
+for t in range(TMAX):
+    # rotina da dinamica
+    # vou escolher um sitio aleatorio
+    sitio = np.random.randint(N2)
+#passo o sitio para o buffer
+    cluster_din(sitio)
+    for j in range(N):
+        for i in range(N):
+            sitio = i+j*N
+            splot[i][j] = s[sitio]
+    fig, ax = plt.subplots(figsize=(16,9), dpi=90)
     
-    #--------- CHART CONFIGS --------------------------------
-    fig, ax = plt.subplots(figsize=(16,9), dpi=120)
     ax.tick_params(axis="x", labelsize=20)
     ax.tick_params(axis="y", labelsize=20)
     ax.spines['left'].set_linewidth(2)
     ax.spines['bottom'].set_linewidth(2)
     ax.spines['right'].set_linewidth(2)
     ax.spines['top'].set_linewidth(2)
-    plt.style.use('seaborn-talk')
-    #--------- CHART CONFIGS --------------------------------
 
-    plt.title("TEMPO {}".format(t))
-    return plt.matshow(splot, cmap='cool', fignum=None)
-
-#----------------- PLOT FUNCTION --------------------
-
-
-
-#-------DINÂMICA-----------------
-plot_din(s, t=0)
-for t in range(TMAX):
-    # rotina da dinamica
-    # vou escolher um sitio aleatorio
-    sitio = np.random.randint(N2)
-
+    plot = ax.imshow(splot, cmap='cool')
+    #plt.colorbar(splot)
+    plt.savefig('teste1.png', format='png')
+    plt.title("T={} e MCsteps={}".format(TEMP, t))
+    #plt.pause(0.001)
     
-    cluster_din(sitio)
     
-    """PLOT"""
-    plot_din(s, t)
-    plt.pause(0.001)
+    plt.show()
+    
+    
     
     
 
-#--------DINÂMICA--------------
-    
 
+     
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# #--------DINÂMICA--------------
+# fig = plt.figure()
+# plot = plt.imshow(splot, cmap='cool')
+
+# def init():
+#     s = rd.choices([-1,1], k=N2)
+#     for j in range(N):
+#         for i in range(N):
+#           sitio = i+j*N
+#           splot[i][j] = s[sitio]
+#     plot.set_data(splot)
+#     return plot
+
+# def update(j):
+#     dinamica()
+#     for j in range(N):
+#         for i in range(N):
+#           sitio = i+j*N
+#           splot[i][j] = s[sitio]
+#     plt.set_title("Tempo {}".format(j))
+#     plot.set_data(splot)
+#     return [plot]
+
+
+# anim = FuncAnimation(fig, update, init_func=init, frames=60, interval=100,blit=True)
+
+# plt.show()  
+    
+    
+    
+    
 
 
 
