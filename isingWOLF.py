@@ -13,26 +13,31 @@ from matplotlib.animation import   FuncAnimation
 import matplotlib as mpl
 mpl.rc('figure', max_open_warning = 0)
 
+
 #---------------------PARAMETROS----------------------------------
+rd.seed(42)
+np.random.seed(42)
 #temperatura
 TEMP = 2.3
 #numero de spins
 N = 64
 N2 = N**2
 #numero de trocas
-TMAX = 100
+TMAX = 1000
 #vetor da rede
 
-s = rd.choices([-1,1], k=N2)
+s = rd.choices([-1, 1], k=N2)
 
 #gerador de numero aleatorio
-rng = default_rng()
+rng = default_rng(seed=42)
 #prob do flip
 prob = 1 - np.exp(-2/TEMP)
 #matriz para o plot
 splot = np.zeros(shape=(N,N), dtype=int)
+#lista para contagem do tamanho dos clusters
+lista_cluster_size=[]
 
-rd.seed(42)
+
 
 #---------------------PARAMETROS----------------------------------
 
@@ -73,62 +78,77 @@ def cluster_din(sitio):
                  sp = sp+1
                  s[nn] = newspin
 #---------------- "BUFFER" -----------------
-
-#fig = plt.figure()#figsize=(16,9), dpi=120)
-
-
-
-
-def make_splot(s):
-    for j in range(N):
-        for i in range(N):
-            sitio = i+j*N
-            splot[i][j] = s[sitio]
-
-
-
-#def dinamica():
-for t in range(TMAX):
-    # rotina da dinamica
-    # vou escolher um sitio aleatorio
-    sitio = np.random.randint(N2)
-#passo o sitio para o buffer
-    cluster_din(sitio)
-    for j in range(N):
-        for i in range(N):
-            sitio = i+j*N
-            splot[i][j] = s[sitio]
-    fig, ax = plt.subplots(figsize=(16,9), dpi=90)
-    
-    ax.tick_params(axis="x", labelsize=20)
-    ax.tick_params(axis="y", labelsize=20)
-    ax.spines['left'].set_linewidth(2)
-    ax.spines['bottom'].set_linewidth(2)
-    ax.spines['right'].set_linewidth(2)
-    ax.spines['top'].set_linewidth(2)
-
-    plot = ax.imshow(splot, cmap='cool')
-    #plt.colorbar(splot)
-    plt.savefig('teste1.png', format='png')
-    plt.title("T={} e MCsteps={}".format(TEMP, t))
-    #plt.pause(0.001)
-    
-    
-    plt.show()
-    
-    
-    
-    
-
-
+ 
+            
      
+ # ----------- CLUSTER SIZE ----------------   
+def cluster_n(d1,d2):
+    cluster_size = (d1[1][1]-d2[1][1])/N2
+    #if cluster_size
+    lista_cluster_size.append(abs(cluster_size))
+
+ # ----------- CLUSTER SIZE ----------------  
+    
+ 
+
+#=============== DINAMICA ======================
+c = time.process_time()
+for t in range(TMAX):
+    for j in range(N):
+        for i in range(N):
+            sitio = i+j*N
+            splot[i][j] = s[sitio]
+
+    # fig, ax = plt.subplots(figsize=(16,9), dpi=90)
+    
+    # ax.tick_params(axis="x", labelsize=20)
+    # ax.tick_params(axis="y", labelsize=20)
+    # ax.spines['left'].set_linewidth(2)
+    # ax.spines['bottom'].set_linewidth(2)
+    # ax.spines['right'].set_linewidth(2)
+    # ax.spines['top'].set_linewidth(2)
+
+    # plot = ax.imshow(splot, cmap='cool')
+    # plt.colorbar(splot)
+    # plt.title("T={} e MCsteps={}".format(TEMP, t))
+    # plt.savefig('images/teste{:03}.png'.format(t), format='png')
+    
+    # plt.show()
+    
+    #ROTINA:
+    #d1 = cluster size inicial 
+    d1 = np.unique(s,  return_counts=True)
+    
+    # Sorteio do spin 
+    sitio = np.random.randint(N2)
+    
+    #passo o sitio para o buffer
+    cluster_din(sitio)
+    
+    #d2 = cluster size após o passo 
+    d2 = np.unique(s,  return_counts=True)
+    
+    # função que calcula o tamanho do cluster 
+    cluster_n(d1,d2)
+    
+    
+print(time.process_time()-c,"s") 
+    
+#=============== DINAMICA ======================    
+
+    
+    
+    
+    
 
 
 
 
 
+c = time.process_time()
 
-
+sorted_list = np.mean(lista_cluster_size)
+print(time.process_time()-c,"s") 
 
 
 

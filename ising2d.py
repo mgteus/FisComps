@@ -6,14 +6,14 @@ import time
 
 ## PARAMETROS
 # temperatura
-TEMP = [0.8,1.0]
+TEMP = [2.3]
 #H = ? para campo diferente de zero
 #J = ? para J diferente de 1
 # numero de spins
 N = 16
 N2 = N**2
 # tempo de SIM
-TMAX = 100
+TMAX = 10000
 a = rd.choices([-1,1], k=N)
 a
 rng = default_rng()
@@ -21,7 +21,7 @@ rng = default_rng()
 s = np.random.randint(2, size=N2)
 #print(s)
 s = 2*s-1
-print(s)
+#print(s)
 mag = np.sum(a)/N
 mag2 = np.sum(s)/N
 #print(mag)
@@ -78,7 +78,7 @@ for temp in TEMP:
 
 #print(sum(medidas6)/TMAX)
 #plt.xlim(0,1500)
-print(time.process_time()-c)
+#print(time.process_time()-c)
 # plt.plot(medidas6, label="T={}".format(temp))
 # plt.xlim(0,1000)
 plt.legend(loc='best')
