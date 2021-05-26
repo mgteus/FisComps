@@ -6,5 +6,5 @@ save_non_project_files = False
 
 [main]
 version = 0.2.0
-recent_files = ['isingWOLF.py', 'ising2d.py', 'images\\gifmaker.py']
+recent_files = ['isingWOLFF.py', 'ising2d.py', 'images\\gifmaker.py', 'WolffMetricas.py']
 
