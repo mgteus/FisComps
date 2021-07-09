@@ -49,7 +49,7 @@ def init_viz(N2):
         viz[sitio][1] = n2
         viz[sitio][2] = n3
         viz[sitio][3] = n4
-    return None
+    return viz
     
     
     
@@ -59,7 +59,8 @@ def init_viz(N2):
 @jit(nopython=True)
 def dinamica():
     for temp in TEMP:
-        init_viz()
+        mag2 = np.sum(s)/N2
+        viz = init_viz(N2)
         for t in range(TMAX):
             # rotina da dinamica
             for i in range(N2):
@@ -72,13 +73,12 @@ def dinamica():
                     # flipo o sitio
                     s[sitio]*=-1;
                     mag2 = mag2 + 2*s[sitio]
-            medidas7[t] = mag2
-        plt.plot(medidas7, label="mag")
-    
-    #print(s)
+            medidas1[t] = mag2
+        
 
 
 
+plt.plot(medidas1, label="mag")
 #print(sum(medidas6)/TMAX)
 #plt.xlim(0,1500)
 #print(time.process_time()-c)
