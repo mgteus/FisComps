@@ -3,7 +3,7 @@ from numpy.random import default_rng
 import matplotlib.pyplot as plt
 import random as rd
 import time
-from numba import jit
+from numba import njit
 
 ## PARAMETROS
 # temperatura
@@ -36,7 +36,7 @@ medidas2 = np.zeros(TMAX, dtype=np.float32)
 
 # defino uma matriz de vizinhos para nao ter que calcular
 # os vizinhos a cada passo
-@jit(nopython=True)
+@njit(nopython=True)
 def init_viz(N2):
     viz=np.zeros(shape=(N2,4),dtype=int)
     for sitio in range(N2):
@@ -56,7 +56,7 @@ def init_viz(N2):
     
 
 
-@jit(nopython=True)
+@njit(nopython=True)
 def dinamica():
     for temp in TEMP:
         mag2 = np.sum(s)/N2
@@ -78,18 +78,67 @@ def dinamica():
 
 
 
-plt.plot(medidas1, label="mag")
-#print(sum(medidas6)/TMAX)
-#plt.xlim(0,1500)
-#print(time.process_time()-c)
-# plt.plot(medidas6, label="T={}".format(temp))
-# plt.xlim(0,1000)
-plt.legend(loc='best')
-plt.show()
+from concurrent.futures import ThreadPoolExecutor
+import numpy as np
+import numba
+from numba import prange
+import threading
+
+
+#@njit(nogil=True, parallel=True)
+def faz_muita_conta(N, seed):
+    np.random.seed(seed)
+    print("Eu sou a thread", threading.current_thread())
+    x = np.random.randint(N)
+    print(x)
+    y = np.random.randint(N)
+    print(y)
+    g = 0 
+    for i in range(N*60):
+        g+=np.exp(i)
+    
+    print(g)
+    
+    for i in range(10**4):
+        for i in range(40):
+            
+            if x > y:
+                print("AH")
+                x = np.random.randint(N)
+                y = np.random.randint(N)
+            else:
+                print("OH")
+                x = np.random.randint(N)
+                y = np.random.randint(N)
+        
+    vec = np.array((x,y), dtype=numba.float64)
+    
+    return vec*vec
+    
+
+
+
+with ThreadPoolExecutor(12) as Executor:
+    task1 = Executor.submit(faz_muita_conta, 6, 42)
+    task2 = Executor.submit(faz_muita_conta, 5, 12)
+    task3 = Executor.submit(faz_muita_conta, 8, 52)
+    task4 = Executor.submit(faz_muita_conta, 6, 40)
+    task5 = Executor.submit(faz_muita_conta, 5, 10)
+    task6 = Executor.submit(faz_muita_conta, 8, 32)
+    task7 = Executor.submit(faz_muita_conta, 6, 35)
+    task8 = Executor.submit(faz_muita_conta, 5, 1)
+    task9 = Executor.submit(faz_muita_conta, 8, 69)
+    task10 = Executor.submit(faz_muita_conta, 6, 5)
+    task11 = Executor.submit(faz_muita_conta, 5, 3)
+    task12 = Executor.submit(faz_muita_conta, 8, 9)
+    
+    
 
 
 
 
-#TMAX = 1000    2.234s
-#TMAX = 10000   22.843s
-#TMAX = 100000  224.573s
+
+
+
+
+
