@@ -1,5 +1,12 @@
 # -*- coding: utf-8 -*-
 """
+Created on Tue Jul 20 20:01:34 2021
+
+@author: mgteus
+
+"""
+# -*- coding: utf-8 -*-
+"""
 Created on Mon Jul 19 10:17:21 2021
 
 @author: mgteus
@@ -107,15 +114,10 @@ def dinamica(s, medidas_mag, medidas_en):
                 
                 
             
-
-# Argumentos
-# s = matriz da rede 
-
-
-
-
-
-
+"""
+CRIAR FUNCAO COM O NUMBA APENAS PARA O PASSOS DE MONTE CARLO
+FUNCAO PASSO(s, E, mag)
+"""
 
 
 
@@ -166,5 +168,6 @@ print("--- %s seconds ---" % (time.time() - start_time))
 
 
 # plt.hist(medidas_en[10**5:], bins=)
+
 
 

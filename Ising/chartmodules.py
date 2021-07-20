@@ -48,7 +48,7 @@ def hist_en(medidas_en):
     else:
         
         n_bins = int(1 + 3.22*np.log(len(medidas_en))) # sturge's rule
-        freqs_en, vals_en = np.histogram(medidas_en, n_bins)
+        freqs_en, vals_en = np.histogram(medidas_en, 28)
         
         
         plt.scatter(vals_en[:-1], freqs_en, label='E')
