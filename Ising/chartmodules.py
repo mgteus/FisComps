@@ -11,10 +11,10 @@ Created on Mon Jul 19 12:10:40 2021
 
 import matplotlib.pyplot as plt
 import numpy as np 
+import pandas as pd
 
 
-
-
+    
 
 def hist_en(medidas_en):
     # PLOT MAG HIST##
@@ -100,4 +100,135 @@ def hist_mag(medidas_mag):
         
         return plt.show()
         
+    
+    
+
+
+
+
+
+def plot_from_csv():
+    path_to_csv = 'C:/Users/mateu/workspace/MonteCarlo/Ising/data.csv'
+    path_to_figs = 'C:/Users/mateu/workspace/MonteCarlo/Ising/charts/'
+    df = pd.read_csv(path_to_csv) 
+    
+    #time_array = df['tempo']
+    mag_array  = df['mag']
+    en_array   = df['energia']
+    
+    mag_width = 2
+    mag_bins = np.arange(min(mag_array), max(mag_array) + mag_width, mag_width)
+    
+    en_width = 4
+    en_bins = np.arange(min(en_array), max(en_array) + en_width, en_width)
+    
+    fig, ax = plt.subplots(figsize=(16,9), dpi=120)
+    #-------------------- CHART CONFIGURATION ---------------------#
+    ax.tick_params(axis="x", labelsize=20)
+    ax.tick_params(axis="y", labelsize=20)
+    ax.spines['left'].set_linewidth(2)
+    ax.spines['bottom'].set_linewidth(2)
+    ax.spines['right'].set_linewidth(2)
+    ax.spines['top'].set_linewidth(2)
+    
+    
+    plt.title('Histograma da Magnitização', fontsize=30)
+    plt.xlabel('mag', fontsize=20)
+    plt.ylabel('H(mag)', fontsize=20)
+    
+    
+    
+    
+    plt.hist(mag_array, bins=mag_bins, color='navy', label='Magnetização')
+    plt.legend(loc='best', fontsize=20)
+    
+    
+    plt.savefig(path_to_figs+'mag_hist.jpeg')
+    
+    plt.show()
+    
+    
+   
+    
+    
+    fig, ax = plt.subplots(figsize=(16,9), dpi=120)
+    #-------------------- CHART CONFIGURATION ---------------------#
+    ax.tick_params(axis="x", labelsize=20)
+    ax.tick_params(axis="y", labelsize=20)
+    ax.spines['left'].set_linewidth(2)
+    ax.spines['bottom'].set_linewidth(2)
+    ax.spines['right'].set_linewidth(2)
+    ax.spines['top'].set_linewidth(2)
+    plt.title('Histograma da Energia', fontsize=30)
+    plt.xlabel('Energia', fontsize=20)
+    plt.ylabel('H(E)', fontsize=20)
+    
+    
+    plt.hist(en_array, bins=en_bins, color='green', label='Energia')
+    plt.legend(loc='best', fontsize=20)
+    
+    
+    plt.savefig(path_to_figs+'en_hist.jpeg')
+    
+    plt.show()
+    
+    
+    
+    return
+    
+    
+    
+    
+    
+
+def restar_csv():
+    path_to_csv = 'C:/Users/mateu/workspace/MonteCarlo/Ising/data.csv'  
+    
+    with open(path_to_csv, 'w') as file:
+        file.write('tempo,mag,energia\n')
+        pass
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+        
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
 

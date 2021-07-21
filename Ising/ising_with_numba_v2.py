@@ -23,6 +23,7 @@ import time
 from numba import jit, config, threading_layer, set_num_threads
 from numpy.random import random as npr
 from numpy.random import default_rng
+from chartmodules import plot_from_csv, restar_csv
 
 # seeds
 rd.seed(42)
@@ -34,31 +35,28 @@ L2 = L**2
 S = np.array(rd.choices([-1,1], k=L2), dtype=np.float32) # rede  para t=0
 
 # # TEMP = array com as temperaturas 
-TEMP = np.array([2.269], dtype=np.float32)
+TEMP = 2.269 #np.array([2.269], dtype=np.float32)
 
 
-# TMAX = tempo de simulação
-TMAX = 10**6
+# T = tempo de simulação
+Teq = 10**5
 
+T = 10**7 - Teq
 
+pm = 60 # tempo entre medidas
 
-
+viz = np.zeros((L2,4),dtype=np.int64)
 # ISING EM SERIE COM NUMBA
 
 
 
 def escreve(t, mag, E):
-    with open("data.csv", "a") as file:
+    with open("C:/Users/mateu/workspace/MonteCarlo/Ising/data.csv", "a") as file:
         file.write("{}, {}, {}\n".format(t, mag, E)) 
     return
 
-
-
-
-# viz = matriz de vizinhos
-@jit(nopython=True)
 def init_viz(L2):
-    viz = np.zeros((L2,4),dtype=numba.int64)
+    viz = np.zeros((L2,4),dtype=np.int64)
     for sitio in range(L2):
         n1 = ((sitio//L -1 +L2)%L)*L + sitio%L
         n2 = ((sitio//L)%L)*L+(sitio+1+L)%L
@@ -71,70 +69,98 @@ def init_viz(L2):
         viz[sitio][3] = n4
     return viz
 
+def init_medidas(s, viz):
+    E = 0 
+    mag = np.sum(s)                         
+    viz = init_viz(L2)                      
+    for i in range(L2):
+      for j in range(4):
+        E = E + s[i]*(s[viz[i][j]])
+    E = E*(-1/2)
+    
+    return E, mag
+    
+    
 
-
+# funcao responsavel pelos MCS
 @jit(nopython=True)
-def dinamica(s, medidas_mag, medidas_en):
-    for temp in TEMP:
-        E = 0 
-        mag = np.sum(s) # definimos a mag dentro do loop com numba
-        viz = init_viz(L2)  # iniciamos os vizinhos
-        for i in range(L2):
-          for j in range(4):
-            E = E + s[i]*(s[viz[i][j]])
-        E = E*(-1/2)      
-        for t in range(TMAX):
-            # rotina da dinamica
-            if t < 10**5:
-               for i in range(L2):
-                 sitio = np.random.randint(L2) # vou escolher um sitio aleatorio
-                 deltae = 2*s[sitio]*(s[viz[sitio,0]] + s[viz[sitio,1]] +s[viz[sitio,2]]+s[viz[sitio,3]])
-                 prob = np.exp(-deltae/temp)
-                 rfloat1 = npr(1)[0]  # num aleatorio [0,1) | npr() = numpy.random.random()
-                 if rfloat1 < prob: # if para flipar o sitio
-                     s[sitio] = s[sitio]*(-1)
-                     mag = mag + 2*s[sitio] # ajustamos a mag
-                     E = E + deltae  
-            
-            else:
-              for i in range(L2):
-                sitio = np.random.randint(L2) # vou escolher um sitio aleatorio
-                deltae = 2*s[sitio]*(s[viz[sitio,0]] + s[viz[sitio,1]] +s[viz[sitio,2]]+s[viz[sitio,3]])
-                prob = np.exp(-deltae/temp)
-                rfloat1 = npr(1)[0]  # num aleatorio [0,1) | npr() = numpy.random.random()
-                if rfloat1 < prob: # if para flipar o sitio
-                    s[sitio] = s[sitio]*(-1)
-                    mag = mag + 2*s[sitio] # ajustamos a mag
-                    E = E + deltae  
-                    
-                    #escreve(t, mag, E)
-                if t%(50)==0:
-                    medidas_mag[t] = mag # salvando o valor da mag do passo t 
-                    medidas_en[t] = E    # salvando o valor da energia no passo t
+def passo(s, mag, E, viz):
+    for i in range(L2):
+             sitio = np.random.randint(L2) # vou escolher um sitio aleatorio
+             deltae = 2*s[sitio]*(s[viz[sitio,0]] + s[viz[sitio,1]] +s[viz[sitio,2]]+s[viz[sitio,3]])
+             prob = np.exp(-deltae/TEMP)
+             rfloat1 = npr(1)[0]  # num aleatorio [0,1) | npr() = numpy.random.random()
+             if rfloat1 < prob: # if para flipar o sitio
+                 s[sitio] = s[sitio]*(-1)
+                 mag = mag + 2*s[sitio] # ajustamos a mag
+                 E = E + deltae
+    return mag, E
+        
+
+def dinamica(s):
+        restar_csv() # reiniciando medidas
+        viz = init_viz(L2) # iniciando vizinhos
+        E, mag = init_medidas(s, viz) # iniciando energia e mag
+        
+    
+        for t in range(Teq):              # loop para equilibrar
+            mag, E = passo(s, mag, E, viz)
+        
+        for t in range(T):                # loop com medidas
+            mag, E = passo(s, mag, E, viz)
+            if t%(50)==0:
+                escreve(t, mag, E)
                 
-                
+        print("Resultados para T={}".format(T+Teq))
+
             
-"""
-CRIAR FUNCAO COM O NUMBA APENAS PARA O PASSOS DE MONTE CARLO
-FUNCAO PASSO(s, E, mag)
-"""
+            
+     
+      
+
 
 
 
 start_time = time.time()
 
 
+s = S.copy()  
+dinamica(s)
 
-s = S.copy() #np.array(rd.choices([-1,1], k=L2), dtype=np.float32)
+print("--- %s segundos ---" % (time.time() - start_time))
+    
 
 
-medidas_mag = np.zeros(TMAX, dtype=np.float32) # vetor com as medidas da magnitude
-medidas_en = np.zeros(TMAX, dtype=np.float32)  # vetor com as medidas da energia
 
 
-dinamica(s, medidas_mag, medidas_en)
 
-print("--- %s seconds ---" % (time.time() - start_time))
+
+
+
+
+
+
+
+
+#from chartmodules import plot_from_csv, restar_csv
+
+
+
+#plot_from_csv()
+#
+ 
+
+
+
+     
+   
+"""
+CRIAR FUNCAO COM O NUMBA APENAS PARA O PASSOS DE MONTE CARLO
+FUNCAO PASSO(s, E, mag)
+"""
+
+
+#print("--- %s seconds ---" % (time.time() - start_time))
 
 
 
