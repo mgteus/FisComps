@@ -107,8 +107,13 @@ def hist_mag(medidas_mag):
 
 
 
-def plot_from_csv():
-    path_to_csv = 'C:/Users/mateu/workspace/MonteCarlo/Ising/data.csv'
+def plot_from_csv(parallel=False):
+    if parallel:
+        path_to_csv = 'C:/Users/mateu/workspace/MonteCarlo/Ising/data_paralelo.csv'
+    else:   
+        path_to_csv = 'C:/Users/mateu/workspace/MonteCarlo/Ising/data.csv'
+    
+    
     path_to_figs = 'C:/Users/mateu/workspace/MonteCarlo/Ising/charts/'
     df = pd.read_csv(path_to_csv) 
     
@@ -132,7 +137,7 @@ def plot_from_csv():
     ax.spines['top'].set_linewidth(2)
     
     
-    plt.title('Histograma da Magnitização', fontsize=30)
+    plt.title('Histograma da Magnetização', fontsize=30)
     plt.xlabel('mag', fontsize=20)
     plt.ylabel('H(mag)', fontsize=20)
     
@@ -142,8 +147,12 @@ def plot_from_csv():
     plt.hist(mag_array, bins=mag_bins, color='navy', label='Magnetização')
     plt.legend(loc='best', fontsize=20)
     
-    
-    plt.savefig(path_to_figs+'mag_hist.jpeg')
+    if parallel:
+        figname1 = path_to_figs+'mag_hist_p.jpeg'
+    else:
+        figname1 = path_to_figs+'mag_hist.jpeg'
+        
+    plt.savefig(figname1)
     
     plt.show()
     
@@ -167,8 +176,12 @@ def plot_from_csv():
     plt.hist(en_array, bins=en_bins, color='green', label='Energia')
     plt.legend(loc='best', fontsize=20)
     
-    
-    plt.savefig(path_to_figs+'en_hist.jpeg')
+    if parallel:
+        figname2 = path_to_figs+'en_hist_p.jpeg'
+    else:
+        figname2 = path_to_figs+'en_hist.jpeg'
+        
+    plt.savefig(figname2)
     
     plt.show()
     
@@ -181,8 +194,11 @@ def plot_from_csv():
     
     
 
-def restar_csv():
-    path_to_csv = 'C:/Users/mateu/workspace/MonteCarlo/Ising/data.csv'  
+def restart_csv(parallel=False):
+    if parallel:
+        path_to_csv = 'C:/Users/mateu/workspace/MonteCarlo/Ising/data_paralelo.csv'
+    else:
+        path_to_csv = 'C:/Users/mateu/workspace/MonteCarlo/Ising/data.csv'  
     
     with open(path_to_csv, 'w') as file:
         file.write('tempo,mag,energia\n')

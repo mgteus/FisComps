@@ -23,7 +23,7 @@ import time
 from numba import jit, config, threading_layer, set_num_threads
 from numpy.random import random as npr
 from numpy.random import default_rng
-from chartmodules import plot_from_csv, restar_csv
+from chartmodules import plot_from_csv, restart_csv
 
 # seeds
 rd.seed(42)
@@ -38,12 +38,12 @@ S = np.array(rd.choices([-1,1], k=L2), dtype=np.float32) # rede  para t=0
 TEMP = 2.269 #np.array([2.269], dtype=np.float32)
 
 
-# T = tempo de simulação
+# Teq = tempo de equilibrio
 Teq = 10**5
-
+# T = tempo de simulação
 T = 10**7 - Teq
 
-pm = 60 # tempo entre medidas
+pm = 50 # tempo entre medidas
 
 viz = np.zeros((L2,4),dtype=np.int64)
 # ISING EM SERIE COM NUMBA
@@ -98,7 +98,7 @@ def passo(s, mag, E, viz):
         
 
 def dinamica(s):
-        restar_csv() # reiniciando medidas
+        restart_csv() # reiniciando medidas
         viz = init_viz(L2) # iniciando vizinhos
         E, mag = init_medidas(s, viz) # iniciando energia e mag
         
@@ -146,7 +146,7 @@ print("--- %s segundos ---" % (time.time() - start_time))
 
 
 
-#plot_from_csv()
+plot_from_csv()
 #
  
 

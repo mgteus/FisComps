@@ -4,3 +4,4 @@
 *.pyc
 .spyproject/config/workspace.ini
 *.ini
+*.bak
