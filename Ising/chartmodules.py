@@ -111,21 +111,38 @@ def plot_from_csv(parallel=False):
     if parallel:
         path_to_csv = 'C:/Users/mateu/workspace/MonteCarlo/Ising/data_paralelo.csv'
     else:   
-        path_to_csv = 'C:/Users/mateu/workspace/MonteCarlo/Ising/data.csv'
+        path_to_csv = 'C:/Users/mateu/workspace/MonteCarlo/Ising/data22.csv'
+        path_to_csv2 = 'C:/Users/mateu/workspace/MonteCarlo/Ising/data24.csv'
+        path_to_csv3 = 'C:/Users/mateu/workspace/MonteCarlo/Ising/data30.csv'
     
     
     path_to_figs = 'C:/Users/mateu/workspace/MonteCarlo/Ising/charts/'
     df = pd.read_csv(path_to_csv) 
+    df2 = pd.read_csv(path_to_csv2) 
+    df3 = pd.read_csv(path_to_csv3) 
     
     #time_array = df['tempo']
     mag_array  = df['mag']
     en_array   = df['energia']
     
+    mag_array2  = df2['mag']
+    en_array2   = df2['energia']
+    
+    
+    mag_array3  = df3['mag']
+    en_array3   = df3['energia']
+    
     mag_width = 2
     mag_bins = np.arange(min(mag_array), max(mag_array) + mag_width, mag_width)
+    mag_bins2 = np.arange(min(mag_array2), max(mag_array2) + mag_width, mag_width)
+    mag_bins3 = np.arange(min(mag_array3), max(mag_array3) + mag_width, mag_width)
     
     en_width = 4
     en_bins = np.arange(min(en_array), max(en_array) + en_width, en_width)
+    en_bins2 = np.arange(min(en_array2), max(en_array2) + en_width, en_width)
+    en_bins3 = np.arange(min(en_array3), max(en_array3) + en_width, en_width)
+    
+
     
     fig, ax = plt.subplots(figsize=(16,9), dpi=120)
     #-------------------- CHART CONFIGURATION ---------------------#
@@ -144,7 +161,10 @@ def plot_from_csv(parallel=False):
     
     
     
-    plt.hist(mag_array, bins=mag_bins, color='navy', label='Magnetização')
+    plt.hist(mag_array, bins=mag_bins, color='r', label='T = 2.2')
+    plt.hist(mag_array2, bins=mag_bins2, color='navy', label='T = 2.4')
+    plt.hist(mag_array3, bins=mag_bins3, color='green', label='T = 3.0')
+    
     plt.legend(loc='best', fontsize=20)
     
     if parallel:
@@ -173,7 +193,9 @@ def plot_from_csv(parallel=False):
     plt.ylabel('H(E)', fontsize=20)
     
     
-    plt.hist(en_array, bins=en_bins, color='green', label='Energia')
+    plt.hist(en_array, bins=en_bins, color='red', label='T = 2.2')
+    plt.hist(en_array2, bins=en_bins2, color='navy', label='T = 2.4')
+    plt.hist(en_array3, bins=en_bins3, color='green', label='T = 30')
     plt.legend(loc='best', fontsize=20)
     
     if parallel:
@@ -194,11 +216,18 @@ def plot_from_csv(parallel=False):
     
     
 
-def restart_csv(parallel=False):
+def restart_csv(TEMP, parallel=False):
     if parallel:
         path_to_csv = 'C:/Users/mateu/workspace/MonteCarlo/Ising/data_paralelo.csv'
     else:
         path_to_csv = 'C:/Users/mateu/workspace/MonteCarlo/Ising/data.csv'  
+        
+    if TEMP == 2.2:
+       path_to_csv = "C:/Users/mateu/workspace/MonteCarlo/Ising/data22.csv"
+    elif TEMP == 2.4:
+       path_to_csv = "C:/Users/mateu/workspace/MonteCarlo/Ising/data24.csv"
+    else:
+       path_to_csv = "C:/Users/mateu/workspace/MonteCarlo/Ising/data30.csv"
     
     with open(path_to_csv, 'w') as file:
         file.write('tempo,mag,energia\n')

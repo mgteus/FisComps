@@ -6,3 +6,8 @@
 *.ini
 *.bak
 *.ini
+.spyproject/config/backups/workspace.ini.bak
+*.bak
+.spyproject/config/workspace.ini
+*.ini
+*.csv
