@@ -6,7 +6,7 @@ Created on Tue Jul 20 20:01:34 2021
 
 """
 # -*- coding: utf-8 -*-
-
+import itertools
 
 import numba
 import numpy as np
@@ -28,10 +28,11 @@ np.random.seed(42)
 rng = default_rng(seed=42)
 
 for TEMP in [3.0]:
+    T = 2.2
     #for L in [16,32,64]:
-    L = 16  # L = tamanho da rede
+    L = 4 # L = tamanho da rede
     L2 = L**2
-    S = np.array(rd.choices([-1,1], k=L2), dtype=np.float32) # rede  para t=0
+    S = np.array(rd.choices([1], k=L2), dtype=np.float32) # rede  para t=0
     
     # # TEMP = array com as temperaturas 
     #TEMP = 3 #np.array([2.269], dtype=np.float32)
@@ -47,9 +48,35 @@ for TEMP in [3.0]:
     viz = np.zeros((L2,4),dtype=np.int64)
     # ISING EM SERIE COM NUMBA
     
+    E    = 0
+    peso = 0
+    Z    = 0
+    mag  = 0
+    m2   = 0
+    E2   = 0
+    e    = 0
     
     
-    
+    for i in range(S.shape[0]):
+        for j in range(-1,2,2):  
+            print(f'primeiro valor = {S[i]*j}, i={i}')
+            S[i] = j
+            for i in range(L2):
+              for j in range(4):
+                E = E + s[i]*(s[viz[i][j]])
+            E = E*(-1/2)
+            
+            peso = np.exp(-E/T)
+            
+            Z = Z + peso
+            
+            e = e + E/L2*peso
+            
+            mag = mag + abs(np.sum(S))/L2*peso
+        
+
+
+
     
     
     # def make_plot(s, t):
