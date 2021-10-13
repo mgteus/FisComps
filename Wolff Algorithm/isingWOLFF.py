@@ -4,7 +4,7 @@ Created on Fri May  7 08:38:43 2021
 @author: mgteus
 
 """
-
+import os 
 import numpy as np
 from numpy.random import default_rng
 import matplotlib.pyplot as plt
@@ -21,12 +21,12 @@ mpl.rc('figure', max_open_warning = 0)
 rd.seed(42)
 np.random.seed(42)
 #temperatura
-TEMP=2.8
+TEMP=1.8
 #numero de spins
 N = 64
 N2 = N**2
 #numero de trocas
-TMAX = 80
+TMAX = 300
 
 
 #vetor da rede
@@ -133,7 +133,7 @@ def cluster_n(d1,d2):
  
 
 #=============== DINAMICA ======================
-
+print(os.getcwd())
 
 for t in range(TMAX):
     for j in range(N):
@@ -159,11 +159,12 @@ for t in range(TMAX):
     plt.colorbar(m, ax=ax,norm=norm ,boundaries=bounds,
     spacing='proportional', ticks=[-1,1], format='%1i')
     
+    if t in [256,257,258]:    
+        plt.title("T={} e MCsteps={}".format(TEMP, t), fontsize=20)
+        plt.savefig(r"Wolff Algorithm\images\teste{:03}.png".format(t), format='png')
+        plt.show()
     
-    plt.title("T={} e MCsteps={}".format(TEMP, t), fontsize=20)
-    plt.savefig('images/teste{:03}.png'.format(t), format='png')
-    
-    plt.show()
+
         
 
     """ROTINA"""    
