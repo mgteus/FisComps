@@ -133,7 +133,7 @@ def cluster_n(d1,d2):
  
 
 #=============== DINAMICA ======================
-print(os.getcwd())
+#print(os.getcwd())
 
 for t in range(TMAX):
     for j in range(N):
