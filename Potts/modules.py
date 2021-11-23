@@ -4,11 +4,13 @@ from matplotlib import cm
 mpl.rc('figure', max_open_warning = 0)
 import numpy as np
 import collections
+import os
 
 
 
 
-def plot_snapshot(rede: np.array = np.array([0,0]), title: str = "", Q: int=0, save: bool = False) -> plt.figure:
+def plot_snapshot(rede: np.array = np.array([0,0]), title: str = "",
+                 Q: int=0, save: bool = False, MCS: int = 0) -> plt.figure:
     """
     Funcao que plota o estado atual da rede, recebendo um array
     """
@@ -65,8 +67,12 @@ def plot_snapshot(rede: np.array = np.array([0,0]), title: str = "", Q: int=0, s
     ax1.set_yticks(list(q_dict.keys()))
 
     fig.tight_layout()
-    
-    plt.show()
+    if save:
+        path = r'C:\Users\mateu\workspace\MonteCarlo\Potts\img'
+        filename = 'fig{:03d}.png'.format(MCS)
+        plt.savefig(os.path.join(path, filename), format='png')
+    else:
+        plt.show()
 
 
     return
@@ -154,11 +160,14 @@ def energy_ts(time_series: list = [0], temps: list = [0]) -> plt.figure:
 
 
 if __name__ == '__main__':
-    energy_ts(time_series=[1,2,3,4,5,1,1,1,1],temps=5)
-    import random
-    x = 100
+    # energy_ts(time_series=[1,2,3,4,5,1,1,1,1],temps=5)
+    # import random
+    # x = 100
     #energy_ts(time_series=[[1*random.random() for i in range(x)],
                             # [20*random.random() for i in range(x)],
                             # [30*random.random() for i in range(x)],
                             # [40*random.random() for i in range(x)],
                             # [50*random.random() for i in range(x)]],temps=[1, 2, 3, 4, 5])
+
+    for i in range(10):
+        print('ahhh{:03d}'.format(i))

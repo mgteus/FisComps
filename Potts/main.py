@@ -12,7 +12,19 @@ from modules import energy_ts
 from modules import plot_snapshot
 mpl.rc('figure', max_open_warning = 0)
 
+def snapshot(potts, save):
+    """
+    Funcao que plota uma snapshot do MCS atual
+    """
+    splot = np.zeros(shape=(potts.N, potts.N), dtype=int)
 
+    for j in range(potts.N):
+        for i in range(potts.N):
+            sitio = i+j*potts.N
+            splot[i][j] = potts.s[sitio]
+    plot_snapshot(splot, f"MCS = {potts.MCS} com Q={potts.Q} e T = {potts.temp}", potts.Q, save)
+
+    return
 
 
 class Potts():
@@ -33,20 +45,6 @@ class Potts():
 
         return viz
 
-    def snapshot(N, s, t, Q):
-        """
-        Funcao que plota uma snapshot do T atual
-        """
-        splot = np.zeros(shape=(N, N), dtype=int)
-
-        for j in range(N):
-            for i in range(N):
-                sitio = i+j*N
-                splot[i][j] = s[sitio]
-        plot_snapshot(splot, f"TEMPO = {t}", Q)
-
-        return
-    
     def  __init__(self, temp, N, Q, TMAX):
         rd.seed(42)
         np.random.seed(42)
@@ -174,9 +172,6 @@ class Potts():
                 self.E = Potts.energia(self)
                 self.en_list.append(self.E)
 
-            # if self.t%500 == 0: 
-            #     Potts.snapshot(self.N, self.s, self.t, self.Q)
-                    
             sitio = np.random.randint(self.N2)
             
             Potts.cluster_din(self, sitio)
@@ -186,28 +181,32 @@ class Potts():
         
         return
 
-    def run(self, n_passos):
-
-        for _ in range(n_passos):
-            Potts.step(self)
-
-        energy_ts(self.en_list, self.temp)
+    def run(self, n_passos: int=0):
+        if n_passos != 0:
+            for _ in range(n_passos):
+                Potts.step(self)
+        else:
+            for _ in range(self.TMAX):
+                Potts.step(self)
 
         return 
     
 
-
-
 if __name__ == '__main__':
-    x = Potts(temp=2.2, N=64, Q=5, TMAX=10)
+    en_list = []
+    temps_list = [0.8, 2., 2.2, 2.5, 3]
+    for temp in temps_list:
+        x = Potts(temp=temp, N=32, Q=5, TMAX=10**4)
+        x.run(100)
 
-    x.run(10)
+        en_list.append(x.en_list)
+    
+    energy_ts(en_list, temps_list)
+        
+
+     
     
 
-    x.snapshot(x.s, x.t, x.Q)
-
-
-    10*64
     """ 
     TESTAR COM O JAX E AJEITAR MAGNETIZACAO PARA CALCULAR A DO ISING
     NA FUNCAO MAG, CONFERIR SE Q == 2, CASO SEJA IGUAL A 2 CALCULAR A MAG IGUAL
@@ -215,11 +214,4 @@ if __name__ == '__main__':
     """
 
 
-    
-    #q_dict = {} # np.zeros(shape=(self.N, self.N), dtype=int)
 
-    # for i in x.s:
-    #     if i not in q_dict:
-    #         q_dict[i] = 1
-    #     else:
-    #         q_dict[i] += 1 
