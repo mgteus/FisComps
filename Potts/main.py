@@ -4,9 +4,11 @@ from numpy.random import default_rng
 import matplotlib.pyplot as plt
 import random as rd
 import time
+import matplotlib
 from matplotlib.animation import   FuncAnimation
 import matplotlib as mpl
 from matplotlib import cm
+from modules import energy_ts
 from modules import plot_snapshot
 mpl.rc('figure', max_open_warning = 0)
 
@@ -15,7 +17,8 @@ mpl.rc('figure', max_open_warning = 0)
 
 class Potts():
 
-    def init_viz():
+    def init_viz(N):
+        N2 = N**2
 
         viz=np.zeros(shape=(N2,4),dtype=int)
         for sitio in range(N2):
@@ -29,6 +32,21 @@ class Potts():
             viz[sitio][3] = n4
 
         return viz
+
+    def snapshot(N, s, t, Q):
+        """
+        Funcao que plota uma snapshot do T atual
+        """
+        splot = np.zeros(shape=(N, N), dtype=int)
+
+        for j in range(N):
+            for i in range(N):
+                sitio = i+j*N
+                splot[i][j] = s[sitio]
+        plot_snapshot(splot, f"TEMPO = {t}", Q)
+
+        return
+    
     def  __init__(self, temp, N, Q, TMAX):
         rd.seed(42)
         np.random.seed(42)
@@ -38,18 +56,35 @@ class Potts():
         self.Q = Q
         self.TMAX = TMAX
         self.krone = np.zeros(shape=(Q,Q), dtype=int)
+        self.en_list = []
+        self.MCS = 0
         np.fill_diagonal(self.krone, 1)
         # iniciando a rede
 
-        self.s = rd.choices(range(1, self.Q+1), k=self.N2)
+        if Q == 2:
+            self.q_list = [-1,1] # lista de q's
+            self.s = rd.choices(self.q_list, k=self.N2)
+            self.magne = np.sum(self.s)
+        else:
+            self.q_list = [i for i in range(1, self.Q+1)] # lista de q's
+            self.s = rd.choices(self.q_list, k=self.N2)
+
         self.splot = np.zeros(shape=(self.N, self.N), dtype=int)
         self.t = 0
 
         #gerador de numero aleatorio
-        rng = default_rng(seed=42)
+        self.rng = default_rng(seed=42)
         #prob do flip
-        prob = 0
+        self.prob = 1 - np.exp(-1./self.temp)
+        #criando matriz de vizinhos
+        self.viz = Potts.init_viz(self.N)
+        #energia
+        self.E = 0
+        #peso
+        self.peso = np.exp(-self.E/self.temp)
 
+        # Z
+        #self.Z = self.peso
 
         return
     
@@ -63,31 +98,100 @@ class Potts():
         print(self.Q)
         print(self.krone[5][3])
 
-    def snapshot(self):
-        """
-        Funcao que plota uma snapshot do T atual
-        """
-        for j in range(self.N):
-            for i in range(self.N):
-                sitio = i+j*self.N
-                self.splot[i][j] = self.s[sitio]
-        plot_snapshot(self.splot, f"TEMPO = {self.t}", self.Q)
-
         return
 
-    def run(self, plot: bool=False):
+    def cluster_din(self, sitio):
+        stack = []
+        oldspin = self.s[sitio]
+        possibles_newspin = [ x for x in range(1, self.Q+1) if x != oldspin ]
+        newspin = rd.choice(possibles_newspin)
+        self.s[sitio] = newspin
+        sp = 1
+        stack.append(sitio)
+    
+        while (sp):
+            sp = sp - 1
+            atual = stack[sp]
+            stack.pop()        
+        
+            for j in range(4):
+                nn = self.viz[atual][j]
+                if self.s[nn] == oldspin: #IF da orientação do vizinho
+                    rfloat1 = self.rng.random()
+                    if (rfloat1 < self.prob) : #IF da inclusão no cluster
+                    
+                        stack.append(nn)
+                        sp = sp + 1
+                        self.s[nn] = newspin
+
+    def energia(self):
+
+        self.E = 0 
+
+        for sitio in range(self.N2):  # passando por todos os sitios da rede
+            for j in range(1, 3):     # j = {1,2}   # loop nos vizinhos 
+                if self.s[sitio] == self.s[self.viz[sitio][j]]: # if da orientacao sitio-vizinho
+                    self.E = self.E + 1
+        return self.E
+
+    def mag(self):
+
+        return
+        
+        # q_dict = {} # np.zeros(shape=(self.N, self.N), dtype=int)
+
+        # for q in self.s:
+        #     if q not in q_dict:
+        #         q_dict[q] = 1
+        #     else:
+        #         q_dict[q] += 1 
+
+        
+        # # Plot histogram.
+        # x_span = self.q_list[0] - self.q_list[-1]
+        
+        # norm = matplotlib.colors.Normalize(vmin=.5, vmax=self.Q+.5)
+        # cm = matplotlib.cm.get_cmap('rainbow')
+
+        # y = plt.get_cmap('rainbow', self.Q)
+
+        
+
+
+        # C = [y(x/self.Q) for x in self.q_list]
+        # plt.bar(q_dict.keys(), q_dict.values(), color=C)
+        # plt.show()
+        # C2 = [cm(x)  for x in self.q_list]
+        # plt.bar(q_dict.keys(), q_dict.values(), color=C2)
+        # plt.show()
+
+    def step(self):
         """
         Funcao da dinamica de Monte Carlo do modelo
         """
-        sitio = np.random.randint(self.N2)
+        for i in range(self.N):
+            if self.t%50:
+                self.E = Potts.energia(self)
+                self.en_list.append(self.E)
 
-        """
-        Da pra usar a mesma dinamica que o WOLFF (email Heitor), cuidar com as medidas 
-        dos observáveis e usar q=2 como espelho pra saber se está tudo certo.
+            # if self.t%500 == 0: 
+            #     Potts.snapshot(self.N, self.s, self.t, self.Q)
+                    
+            sitio = np.random.randint(self.N2)
+            
+            Potts.cluster_din(self, sitio)
 
+            self.t = self.t + 1
+        self.MCS = self.MCS + 1
+        
+        return
 
-        Da pra paralelilzar usando o checkerboard (mestrado Luis)
-        """
+    def run(self, n_passos):
+
+        for _ in range(n_passos):
+            Potts.step(self)
+
+        energy_ts(self.en_list, self.temp)
 
         return 
     
@@ -95,7 +199,27 @@ class Potts():
 
 
 if __name__ == '__main__':
-    x = Potts(temp=2.1, N=64, Q=10, TMAX=10)
-    x.show_status()
+    x = Potts(temp=2.2, N=64, Q=5, TMAX=10)
 
-    #x.snapshot()
+    x.run(10)
+    
+
+    x.snapshot(x.s, x.t, x.Q)
+
+
+    10*64
+    """ 
+    TESTAR COM O JAX E AJEITAR MAGNETIZACAO PARA CALCULAR A DO ISING
+    NA FUNCAO MAG, CONFERIR SE Q == 2, CASO SEJA IGUAL A 2 CALCULAR A MAG IGUAL
+    AO ISING PADRAO
+    """
+
+
+    
+    #q_dict = {} # np.zeros(shape=(self.N, self.N), dtype=int)
+
+    # for i in x.s:
+    #     if i not in q_dict:
+    #         q_dict[i] = 1
+    #     else:
+    #         q_dict[i] += 1 
