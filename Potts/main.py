@@ -109,7 +109,7 @@ class Potts():
         self.lista_rands = [self.rng.random() for _ in range(10*4+30)]
         
         #TMAX*self.N2+1
-        time.sleep(3)
+        time.sleep(4)
 
         return
 
@@ -193,8 +193,8 @@ class Potts():
         self.magne = (self.Q*(N_max/self.N2) -1)/(self.Q - 1)
 
         # ajustando E_0
-        if self.E_ == 0:
-            self.E_ = self.E
+        
+        self.E_ = self.E + self.E
 
         return self.E, self.magne
 
@@ -206,7 +206,7 @@ class Potts():
         """
         Funcao da dinamica de Monte Carlo do modelo
         """
-        for i in range(1):
+        for i in range(self.N2):
             if self.t%50:
                 self.E, self.magne = Potts.energia_e_mag(self)
                 self.en_list.append(self.E)
@@ -241,28 +241,69 @@ class Potts():
 
 if __name__ == '__main__':
 
-    threads = 4
-    with ThreadPoolExecutor(threads) as Exec:
-       #                                 temp, N, Q, TMAX, alg
-        task1 = Exec.submit(create_rede, 0.91, 32, 4, 10, 0)
-        task2 = Exec.submit(create_rede, 1.21, 32, 4, 10, 0)
-        task3 = Exec.submit(create_rede, 0.61, 32, 4, 10, 0)
-        
-    t1 = task1.result()
-    t2 = task2.result()
-    t3 = task3.result()
+    threads = 7
     
+    # with ThreadPoolExecutor(threads) as Exec:
 
-    temps = [0.91, 1.51, 0.31]#
-    alg = [0,0,0]
+    #    #                                 temp, N, Q, TMAX, alg
+    #     task1 = Exec.submit(create_rede, 0.31, 32, 4, 1, 0)
+    #     task1 = Exec.submit(create_rede, 0.31, 32, 4, 1, 0)
+    #     task2 = Exec.submit(create_rede, 0.61, 32, 4, 1, 0)
+    #     task3 = Exec.submit(create_rede, 0.91, 32, 4, 1, 0)
+    #     task4 = Exec.submit(create_rede, 1.21, 32, 4, 1, 0)
+    #     task5 = Exec.submit(create_rede, 1.51, 32, 4, 1, 0)
+        
+    # t1 = task1.result()
+    # t2 = task2.result()
+    # t3 = task3.result()
+    # t4 = task4.result()
+    # t5 = task5.result()
+
+    # tasks = [t1, t2, t3, t4, t5]
+
+    # temps = [0.31, 0.61, 0.91, 1.21, 1.21]
     
-    mag_list = [t1[1][:50], t2[1][:50], t3[1][:50]]
-
-    mag_ts(mag_list, temps, alg, 1000)
-    en_list = [t1[0][:50], t2[0][:50], t3[0][:50]]
+    # media_ens = [np.mean(x[0]) for x in tasks]
 
         
 
+    # plt.plot(temps, media_ens, ls='--', c='k')
+    # plt.scatter(temps, media_ens, c='r', label='data')
+    # plt.legend()
+    # plt.show()
+
+
+
+    temps = [0.11, 0.31, 0.51, 0.60, 0.66, 0.68,
+    0.69,0.7012, 0.71,0.74, 0.8, 0.85, 1.]
+    media_ens = []
+    print(temps[7])
+    for t in temps:
+        x = create_rede(t, 32, 10, 13, 0)
+        media_ens.append(np.mean(x[1]))
+
+    fig, ax = plt.subplots(ncols=1, nrows=1, constrained_layout=True, figsize=(16, 9))
+
+    """ INICIO PRIMEIRO PLOT """
+    # plot pricipal da serie temporal
+    ax.tick_params(axis="x", labelsize=15)
+    ax.tick_params(axis="y", labelsize=15)
+    #ax.set_xticks(range(len(time_series[0])))
+    ax.spines['left'].set_linewidth(1.5)
+    ax.spines['bottom'].set_linewidth(1.5)
+    ax.spines['right'].set_linewidth(1.5)
+    ax.spines['top'].set_linewidth(1.5)
+
+    plt.title('Gráfico de M x T (Q=10)', fontsize=25)
+    plt.ylabel('E', fontsize=20, rotation=0)
+    plt.xlabel('T', fontsize=25)
+    plt.plot(temps, media_ens, ls='--', c='k', lw=2)
+  
+    plt.annotate(r'$T_{c}$', (temps[7]-0.03, media_ens[7]+50), fontsize=20)
+    plt.scatter(temps, media_ens, c='k', label=r'$T_{i}$', s=50)
+    plt.scatter(temps[7], media_ens[7], c='r', label=r'$T_{c}$', s=75)
+    plt.legend(fontsize=20)
+    plt.show()
 
 
 
